@@ -7,6 +7,7 @@ a JSON object.
 
 import collections
 import datetime
+import json
 import logging
 from optparse import OptionParser
 import re
@@ -14,18 +15,19 @@ import re
 import mwclient
 
 
+logger = logging.getLogger(__name__)
+
+# Constants
 WIKIPEDIA_URL = "en.wikipedia.org"
 BIRTHS_SECTION = "==Births=="
 DEATHS_SECTION = "==Deaths=="
-
+MIN_YEAR = 1900
 
 # Regular Expression Patterns
 # Extract birth year from rest of birth line information.
 # Year may include optional era, like "BC".
 YEAR_PAT = re.compile(r"\*[\[ ]+(?P<year>[0-9]{1,4}[A-Za-z ]*)[\] ]+&ndash; (?P<person_info>.+)")
 
-
-logger = logging.getLogger(__name__)
 
 class WikiParse(object):
 
@@ -34,25 +36,38 @@ class WikiParse(object):
         self.site.login(wiki_username, wiki_password)
         self.births = rdict()
 
-    def run(self):
+    def fetch_data(self):
+        logger.info("Starting Wikipedia parse")
         for day in get_next_day():
             page_title = day.strftime("%B %-d")
-            logging.info("Parsing contents for page '%s'", page_title)
+            logger.info("Parsing contents for page '%s'", page_title)
             contents = self.get_wikipedia_page_contents(page_title)
             births_on_this_day = parse_births(contents)
             for birth_line in births_on_this_day:
                 (year, person) = parse_birth(birth_line)
-                self.births[year][day.month][day.day] = person
+                year = year.rstrip()
+                if year.isdigit():
+                    if int(year) > MIN_YEAR:
+                        self.births[year][day.month][day.day] = person
+                    else:
+                        logger.debug("Skipping old entry: " + birth_line)
+                else:
+                    logger.warning("Skipping entry with bad year: " + birth_line)
+        logger.info("Finished Wikipedia parse")
 
     def get_wikipedia_page_contents(self, page_title):
         """Return contents of Wikipedia page 'page_title'."""
         page = self.site.Pages[page_title]
         return page.edit(readonly=True)
 
+    def dump_to_json_file(self, filename="birthdays.json"):
+        """Serialize this object to a JSON formatted string."""
+        with open(filename, 'w') as f:
+            json.dump(self.births, f)
+
 
 def get_next_day():
     """Generator to iterate over every day of 2012."""
-
     this_day = datetime.date(2012, 1, 1)
     last_day = datetime.date(2012, 12, 31)
     one_day = datetime.timedelta(days=1)
@@ -63,9 +78,16 @@ def get_next_day():
 
 
 def parse_birth(birth_text):
-    """Parse birth line and return (year, person)."""
+    """Parse birth line and return (year, person).
+
+    If birth_text is unrecognizable, return empty string for year and person.
+    """
     result = YEAR_PAT.search(birth_text)
-    return result.groups()
+    try:
+        return result.groups()
+    except AttributeError:
+        logger.warning("Cannot parse '%s'." % birth_text)
+        return ("", "")
 
 
 def parse_births(contents):
@@ -86,8 +108,8 @@ def parse_command_line_options():
     parser = OptionParser()
     parser.add_option("--username", help="Username for Wikipedia account")
     parser.add_option("--password", help="Password for Wikipedia account")
-    parser.add_option("-q", action="store_false", dest="verbose", default=True,
-                      help="Don't print info messages to stdout")
+    parser.add_option("--verbose", action="store_true", default=False,
+                      help="Print info messages to stdout")
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error("Incorrect number of arguments")
@@ -96,9 +118,11 @@ def parse_command_line_options():
 
 def main():
     options = parse_command_line_options()
+    if options.verbose:
+        logger.setLevel(logging.INFO)
     w = WikiParse(options.username, options.password)
-    w.run()
-    return w
+    w.fetch_data()
+    return w.to_json()
 
 
 if __name__ == '__main__':
