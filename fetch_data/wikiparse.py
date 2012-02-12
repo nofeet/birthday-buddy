@@ -1,8 +1,15 @@
+"""wikiparse.py
+
+A script for fetching all birthday information from Wikipedia and saving it to
+a JSON object.
+"""
+
+
 import collections
 import datetime
 import logging
+from optparse import OptionParser
 import re
-import sys
 
 import mwclient
 
@@ -10,7 +17,13 @@ import mwclient
 WIKIPEDIA_URL = "en.wikipedia.org"
 BIRTHS_SECTION = "==Births=="
 DEATHS_SECTION = "==Deaths=="
-BIRTH_PATTERN = re.compile(r"\*[\[ ]+([0-9]{1,4}[A-Za-z ]*)[\] ]+&ndash; (.+)")
+
+
+# Regular Expression Patterns
+# Extract birth year from rest of birth line information.
+# Year may include optional era, like "BC".
+YEAR_PAT = re.compile(r"\*[\[ ]+(?P<year>[0-9]{1,4}[A-Za-z ]*)[\] ]+&ndash; (?P<person_info>.+)")
+
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +64,7 @@ def get_next_day():
 
 def parse_birth(birth_text):
     """Parse birth line and return (year, person)."""
-    result = BIRTH_PATTERN.search(birth_text)
+    result = YEAR_PAT.search(birth_text)
     return result.groups()
 
 
@@ -68,17 +81,25 @@ def rdict(*args, **kw):
     return collections.defaultdict(rdict, *args, **kw)
 
 
-class Person(object):
-
-    def __init__(self, name, link):
-        self.name = name
-        self.link = link
+def parse_command_line_options():
+    """Parse and return command line options."""
+    parser = OptionParser()
+    parser.add_option("--username", help="Username for Wikipedia account")
+    parser.add_option("--password", help="Password for Wikipedia account")
+    parser.add_option("-q", action="store_false", dest="verbose", default=True,
+                      help="Don't print info messages to stdout")
+    (options, args) = parser.parse_args()
+    if len(args) != 1:
+        parser.error("Incorrect number of arguments")
+    return options
 
 
 def main():
-    w = WikiParse("gregono", sys.argv[1])
+    options = parse_command_line_options()
+    w = WikiParse(options.username, options.password)
     w.run()
     return w
+
 
 if __name__ == '__main__':
     main()
