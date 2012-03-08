@@ -15,7 +15,8 @@ import re
 import mwclient
 
 
-logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(asctime)s %(message)s')
+logger = logging.getLogger("wikiparse")
 
 # Constants
 WIKIPEDIA_URL = "en.wikipedia.org"
@@ -31,10 +32,12 @@ YEAR_PAT = re.compile(r"\*[\[ ]*(?P<year>[0-9]{1,4}[A-Za-z ]*)[\] ]+&ndash; (?P<
 
 class WikiParse(object):
 
-    def __init__(self, wiki_username=None, wiki_password=None):
+    def __init__(self, wiki_username=None, wiki_password=None, verbose=False):
         self.site = mwclient.Site(WIKIPEDIA_URL)
         self.site.login(wiki_username, wiki_password)
         self.births = rdict()
+        if verbose:
+            logger.setLevel(logging.INFO)
 
     def fetch_data(self):
         logger.info("Starting Wikipedia parse")
@@ -110,16 +113,14 @@ def parse_command_line_options():
     parser.add_option("--verbose", action="store_true", default=False,
                       help="Print info messages to stdout")
     (options, args) = parser.parse_args()
-    if len(args) != 1:
-        parser.error("Incorrect number of arguments")
+    if args:
+        parser.error("Unknown argument(s): %s" % ", ".join(args))
     return options
 
 
 def main():
     options = parse_command_line_options()
-    if options.verbose:
-        logger.setLevel(logging.INFO)
-    w = WikiParse(options.username, options.password)
+    w = WikiParse(options.username, options.password, options.verbose)
     w.fetch_data()
     return w.to_json()
 
