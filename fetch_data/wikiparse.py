@@ -48,14 +48,18 @@ class WikiParse(object):
             births_on_this_day = parse_births(contents)
             for birth_line in births_on_this_day:
                 (year, person) = parse_birth(birth_line)
+                if not year:
+                    continue
                 year = year.rstrip()
-                if year.isdigit():
-                    if int(year) > MIN_YEAR:
-                        self.births[year][day.month][day.day] = person
-                    else:
-                        logger.debug("Skipping old entry: " + birth_line)
-                else:
+                try:
+                    year = int(year)
+                except ValueError:
                     logger.warning("Skipping entry with bad year: " + birth_line)
+                    continue
+                if year > MIN_YEAR:
+                    self.births[year][day.month][day.day] = person
+                else:
+                    logger.debug("Skipping old entry: " + birth_line)
         logger.info("Finished Wikipedia parse")
 
     def get_wikipedia_page_contents(self, page_title):
@@ -122,7 +126,7 @@ def main():
     options = parse_command_line_options()
     w = WikiParse(options.username, options.password, options.verbose)
     w.fetch_data()
-    return w.to_json()
+    return w.dump_to_json_file()
 
 
 if __name__ == '__main__':
