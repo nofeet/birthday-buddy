@@ -19,14 +19,14 @@ logger = logging.getLogger(__name__)
 
 # Constants
 WIKIPEDIA_URL = "en.wikipedia.org"
-BIRTHS_SECTION = "==Births=="
-DEATHS_SECTION = "==Deaths=="
 MIN_YEAR = 1900
 
 # Regular Expression Patterns
+BIRTHS_SECTION_PAT = re.compile(r"== *Births *==")
+DEATHS_SECTION_PAT = re.compile(r"== *Deaths *==")
 # Extract birth year from rest of birth line information.
 # Year may include optional era, like "BC".
-YEAR_PAT = re.compile(r"\*[\[ ]+(?P<year>[0-9]{1,4}[A-Za-z ]*)[\] ]+&ndash; (?P<person_info>.+)")
+YEAR_PAT = re.compile(r"\*[\[ ]*(?P<year>[0-9]{1,4}[A-Za-z ]*)[\] ]+&ndash; (?P<person_info>.+)")
 
 
 class WikiParse(object):
@@ -92,9 +92,8 @@ def parse_birth(birth_text):
 
 def parse_births(contents):
     """Parse contents and return list of births."""
-    start_index = contents.index(BIRTHS_SECTION) + len(BIRTHS_SECTION)
-    end_index = contents.index(DEATHS_SECTION)
-    birth_text = contents[start_index:end_index]
+    contents_after_births = BIRTHS_SECTION_PAT.split(contents)[1]
+    birth_text = DEATHS_SECTION_PAT.split(contents_after_births)[0]
     return [b for b in birth_text.split("\n") if b.startswith("*")]
 
 
