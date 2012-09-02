@@ -33,7 +33,7 @@ WIKI_DAY_CONTENT = """
 *[[1885]] &ndash; [[Harry Elkins Widener]], American book collector and victim of the [[RMS Titanic]] sinking (d. 1912
 *[[1989]] &ndash; [[Alex D. Linz]], American actor
 *  1989   &ndash; [[Julia Nunes]], American singer and ukulele player
-*1989 &ndash; [[Anya Rozova]], Russian/American fashion model
+*1989&ndash;[[Anya Rozova]], Russian/American fashion model
 *[[1991]] &ndash; [[Jerson Cabral]], Dutch footballer
 <!-- 
 Please do not add yourself, non-notable people, fictional characters, or people without Wikipedia articles to this list. No red links, please. 
@@ -93,7 +93,7 @@ EXPECTED_BIRTHS = [
     '*[[1885]] &ndash; [[Harry Elkins Widener]], American book collector and victim of the [[RMS Titanic]] sinking (d. 1912',
     '*[[1989]] &ndash; [[Alex D. Linz]], American actor',
     '*  1989   &ndash; [[Julia Nunes]], American singer and ukulele player',
-    '*1989 &ndash; [[Anya Rozova]], Russian/American fashion model',
+    '*1989&ndash;[[Anya Rozova]], Russian/American fashion model',
     '*[[1991]] &ndash; [[Jerson Cabral]], Dutch footballer'
 ]
 
@@ -125,3 +125,7 @@ class TestWikiParse(unittest.TestCase):
         """Verify parse_births() returns all birth entries and nothing else."""
         actual_births = wikiparse.parse_births(WIKI_DAY_CONTENT)
         self.assertListEqual(EXPECTED_BIRTHS, actual_births)
+
+
+if __name__ == "__main__":
+    unittest.main()

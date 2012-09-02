@@ -27,7 +27,7 @@ BIRTHS_SECTION_PAT = re.compile(r"== *Births *==")
 DEATHS_SECTION_PAT = re.compile(r"== *Deaths *==")
 # Extract birth year from rest of birth line information.
 # Year may include optional era, like "BC".
-YEAR_PAT = re.compile(r"\*[\[ ]*(?P<year>[0-9]{1,4}[A-Za-z ]*)[\] ]+&ndash; (?P<person_info>.+)")
+YEAR_PAT = re.compile(r"\*[\[ ]*(?P<year>[0-9]{1,4}[A-Za-z ]*)[\] ]*&ndash; +(?P<person_info>.+)")
 
 
 class WikiParse(object):
