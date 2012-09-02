@@ -35,7 +35,7 @@ class WikiParse(object):
     def __init__(self, wiki_username=None, wiki_password=None, verbose=False):
         self.site = mwclient.Site(WIKIPEDIA_URL)
         self.site.login(wiki_username, wiki_password)
-        self.births = rdict()
+        self.births = collections.defaultdict(list)
         if verbose:
             logger.setLevel(logging.INFO)
 
@@ -57,7 +57,7 @@ class WikiParse(object):
                     logger.warning("Skipping entry with bad year: " + birth_line)
                     continue
                 if year > MIN_YEAR:
-                    self.births[year][day.month][day.day] = person
+                    self.births["%d%s%s" % (year, day.month, day.day)].append(person)
                 else:
                     logger.debug("Skipping old entry: " + birth_line)
         logger.info("Finished Wikipedia parse")
@@ -102,11 +102,6 @@ def parse_births(contents):
     contents_after_births = BIRTHS_SECTION_PAT.split(contents)[1]
     birth_text = DEATHS_SECTION_PAT.split(contents_after_births)[0]
     return [b for b in birth_text.split("\n") if b.startswith("*")]
-
-
-def rdict(*args, **kw):
-    """Recursive Default Dictionary"""
-    return collections.defaultdict(rdict, *args, **kw)
 
 
 def parse_command_line_options():

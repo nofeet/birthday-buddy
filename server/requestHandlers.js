@@ -7,7 +7,8 @@ function lookup(query, response) {
   var year = querystring.parse(query)["year"];
   var month = querystring.parse(query)["month"];
   var day = querystring.parse(query)["day"];
-  var content = birthdayDB[year][month][day];
+  var key = year + month + day;
+  var content = birthdayDB[key];
 
   response.writeHead(200, {"Content-Type": "text/html"});
   response.write(content);
