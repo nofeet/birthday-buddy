@@ -47,7 +47,7 @@ var FAMOUSTWIN = (function () {
         },
       jsonpCallback: "_testcb",
       success: function(data) {
-          $("#results").append(data);
+          $("#results").html(data);
       },
       error: function(jqXHR, textStatus, errorThrown) {
           alert('error ' + textStatus + " " + errorThrown);
