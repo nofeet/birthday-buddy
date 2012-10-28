@@ -1,3 +1,15 @@
-.project
+# Backup files
+*~
+
+# Generated database
+fetch_data/birthdays.json
+
+# Compiled code
 *.pyc
+
+# Eclipse
+.project
 .pydevproject
+
+# Node.js modules
+server/node_modules
