@@ -1,5 +1,8 @@
-# Test module for wikiparse
 # -*- coding: utf-8 -*-
+"""Test module for wikiparse
+
+NOTE: Python 2.7 is required to run these tests.
+"""
 
 import unittest
 
@@ -112,7 +115,8 @@ class TestWikiParse(unittest.TestCase):
         birth_line = "*[[1862]] &ndash; [[Matthew Nathan|Sir Matthew Nathan]], British Governor of [[Queensland]] (d. 1939)"
         (actual_year, actual_name) = wikiparse.parse_birth(birth_line)
         self.assertEqual("1862", actual_year, "Wrong year returned")
-        self.assertEqual("[[Matthew Nathan|Sir Matthew Nathan]], British Governor of [[Queensland]] (d. 1939)", actual_name, "Wrong name returned")
+        self.assertEqual("[[Matthew Nathan|Sir Matthew Nathan]], British Governor of [[Queensland]] (d. 1939)", actual_name,
+                         "Wrong name returned")
 
     def test_parse_birth_bc(self):
         """Verify that parse_birth() parses a single BC Birth line correctly."""
