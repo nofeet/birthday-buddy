@@ -7,12 +7,12 @@ a JSON object.
 
 import collections
 import datetime
-import json
 import logging
 from optparse import OptionParser
 import re
 
 import mwclient
+import simplejson
 
 
 logging.basicConfig(format='%(asctime)s %(message)s')
@@ -70,7 +70,7 @@ class WikiParse(object):
     def dump_to_json_file(self, filename="birthdays.json"):
         """Serialize this object to a JSON formatted string."""
         with open(filename, 'w') as f:
-            json.dump(self.births, f)
+            simplejson.dump(self.births, f)
 
 
 def get_next_day():
