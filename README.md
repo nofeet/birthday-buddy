@@ -18,9 +18,28 @@ But this is really just a way for me to learn and play around with some cool tec
 * Python 2.7
 * Node 0.6.19+
 
+#### Optional ####
 
-### Set Up ###
+* `python-dev` package for simplejson speedups
 
-1. pip install mwclient
+### Python Wikipedia Scraper ###
 
-**more TBD**
+#### Set Up ####
+
+From root of repo--
+
+    pip install -r requirements.txt
+
+To run scraper to generate `./birthdays.json`--
+
+    cd fetch_data
+    python wikiparse.py
+
+To run tests--
+
+    cd fetch_data
+    python test_wikiparse.py
+
+#### Server ####
+
+**TBD**
